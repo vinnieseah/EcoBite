@@ -1,0 +1,27 @@
+
+[2K[1G[1myarn run v1.22.22[22m
+[2K[1G[33mwarning[39m package.json: No license field
+[2K[1G[2m$ npx hardhat run scripts --network vechain_solo[22m
+[1G[0K[33m[1mWARNING:[22m[39m You are currently using Node.js v21.7.3, which is not supported by Hardhat. This can lead to unexpected behavior. See https://hardhat.org/nodejs-versions
+
+
+Deploying on vechain_solo with wallet 0xf077b491b355E64048cE21E3A6Fc4751eEeA77fa...
+Deploying mock RewardToken...
+RewardToken deployed to 0xba0771d5ca70f1ab783b01f5489f343cd83f74da
+Deploying X2EarnApps mock contract...
+X2EarnApps deployed to 0x1dabbba8ce34e3219f37ff667bc3fc4b711a947f
+Deploying X2EarnRewardsPool mock contract...
+X2EarnRewardsPool deployed to 0x23b932673d43c778b3150258be079c6a7d5f5a8c
+Adding app in X2EarnApps...
+AppID: 0xed0d9621a5f9a5348638d5077da83e5101eac31f1e0c3faae5bff1bc45626b04
+Funding contract...
+Funded
+Deploying EcoEarn contract...
+EcoEarn deployed to: 0x732d2a942987be186ae2dbf18b659c312396ed98
+To start using the contract, we need to set the rewards amount and switch to the next cycle
+Rewards set reward amount to 1000
+Switched to next cycle
+Add EcoEarn contracts as distributor...
+Added
+Done
+[1G[0K⠙[1G[0K[2K[1G✨  Done in 53.66s.
