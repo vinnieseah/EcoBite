@@ -1,13 +1,12 @@
 import { DAppKitProvider } from "@vechain/dapp-kit-react";
-import { ChakraProvider, Container, Flex } from "@chakra-ui/react";
-import {
-  Dropzone,
-  Footer,
-  InfoCard,
-  Instructions,
-  Navbar,
-  SubmissionModal,
-} from "./components";
+import { ChakraProvider } from "@chakra-ui/react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./routes/HomePage";
+import Page from "./components/Page";
+import PageHub from "./components/PageHub";
+import CameraPage from "./routes/CameraPage";
+import InstructionsPage from "./routes/InstructionsPage";
+import {Navbar} from "./components/Navbar"; // Import Navbar
 import { lightTheme } from "./theme";
 
 function App() {
@@ -20,27 +19,17 @@ function App() {
         nodeUrl="https://testnet.vechain.org/"
         logLevel={"DEBUG"}
       >
-        <Navbar />
-        <Flex flex={1}>
-          <Container
-            mt={{ base: 4, md: 10 }}
-            maxW={"container.xl"}
-            mb={{ base: 4, md: 10 }}
-            display={"flex"}
-            flex={1}
-            alignItems={"center"}
-            justifyContent={"flex-start"}
-            flexDirection={"column"}
-          >
-            <InfoCard />
-            <Instructions />
-            <Dropzone />
-          </Container>
-        </Flex>
-        <Footer />
-
-        {/* MODALS  */}
-        <SubmissionModal />
+        <Router>
+          <Routes>
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/camera" element={<CameraPage />} />
+            <Route path="/instructions" element={<InstructionsPage />} />
+            <Route path="/pages" element={<PageHub />} />
+            <Route path="/page/:id" element={<Page />} />
+            {/* Add more routes here */}
+          </Routes>
+          <Navbar />
+        </Router>
       </DAppKitProvider>
     </ChakraProvider>
   );

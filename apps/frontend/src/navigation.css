@@ -1,0 +1,130 @@
+/* Reset default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+}
+
+/* Main content styling */
+#main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* Bottom navigation styling */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #ccc;
+}
+
+/* Navigation button styling */
+.nav-button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav-button i {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.nav-button:focus {
+    outline: none;
+}
+
+/* Style for the active button */
+.nav-button.active {
+    color: #007bff; /* Change color to indicate it's active */
+}
+
+
+
+/* Page.css */
+.page-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .header {
+    margin-bottom: 20px;
+  }
+  
+  .map-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+  
+  .text-container {
+    text-align: center;
+  }
+  
+  .description {
+    white-space: pre-line; /* To handle newline characters in description */
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  
+  .website-link {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .gallery-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  
+  .gallery-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  

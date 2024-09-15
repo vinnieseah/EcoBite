@@ -3,6 +3,5 @@ export * from "./Navbar";
 export * from "./Icon";
 export * from "./InfoCard";
 export * from "./Instructions";
-export * from "./Dropzone";
-export * from "./Footer";
+export * from "./Camera";
 export * from "./SubmissionModal";
