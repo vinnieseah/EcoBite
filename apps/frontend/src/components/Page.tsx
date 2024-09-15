@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { posters } from './Camera'; // Import the global posters variable
 
 // Sample data for 6 cards
 const cardData = [
@@ -87,6 +88,7 @@ const cardData = [
 
 const Page: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Get the `id` parameter from the URL
+  const [pageImages, setPageImages] = useState<string[]>([]);
 
   // Find the corresponding entry in the cardData array
   const pageData = cardData.find((card) => card.id === parseInt(id || ''));
@@ -95,6 +97,13 @@ const Page: React.FC = () => {
   if (!pageData) {
     return <div>Page not found</div>;
   }
+
+  useEffect(() => {
+    // Check the global posters variable for images corresponding to the page index
+    if (posters[pageData.id] && posters[pageData.id].length > 0) {
+      setPageImages(posters[pageData.id]);
+    }
+  }, [pageData]);
 
   return (
     <div style={styles.pageContainer}>
@@ -124,6 +133,21 @@ const Page: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Display images from global posters */}
+      {pageImages.length > 0 && (
+        <section style={styles.imageSection}>
+          <h2>Uploaded Images</h2>
+          {pageImages.map((img, index) => (
+            <img 
+              key={index} 
+              src={img} 
+              alt={`Uploaded image ${index + 1}`} 
+              style={styles.uploadedImage} 
+            />
+          ))}
+        </section>
+      )}
     </div>
   );
 };
@@ -151,8 +175,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   logo: {
     width: '150px',
     height: '150px',
-    borderRadius: '8px',
+    borderRadius: '50%', // Make the logo circular
     marginBottom: '20px',
+    objectFit: 'cover', // Ensure the image covers the circular area
   },
   textContainer: {
     textAlign: 'center',
@@ -166,6 +191,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   websiteLink: {
     color: '#007bff',
     textDecoration: 'none',
+  },
+  imageSection: {
+    marginTop: '20px',
+  },
+  uploadedImage: {
+    width: '80%', // Increased the width to make the images larger
+    height: 'auto',
+    margin: '10px auto', // Center the images
+    borderRadius: '15px', // Added rounded corners
+    display: 'block',
   },
 };
 

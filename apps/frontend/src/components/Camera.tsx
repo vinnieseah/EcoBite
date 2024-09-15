@@ -1,70 +1,78 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Box, HStack, Text, VStack } from "@chakra-ui/react";
-import { ScanIcon } from "./Icon";
+import { Box, HStack, Text, VStack, Icon, useColorModeValue, useToast } from "@chakra-ui/react";
+import { MdOutlineCameraAlt } from "react-icons/md";
+import { CheckCircleIcon, WarningIcon, InfoIcon } from "@chakra-ui/icons";
 import { blobToBase64, resizeImage } from "../util";
-import { useWallet } from "@vechain/dapp-kit-react";
 import { useDisclosure, useSubmission } from "../hooks";
+import { useWallet } from "@vechain/dapp-kit-react"; // Import useWallet
 
-// Define a type for the location
 type Location = {
   id: number;
   name: string;
   lat: number;
   lng: number;
-  images: string[]; // Store base64 images
+  images: string[];
 };
 
-
-// Predefined locations with latitude and longitude
 const locations: Location[] = [
-  { id: 1, name: 'Open Farm Community', lat: 1.304896, lng: 103.812891, images: [] },
-  { id: 2, name: 'Scaled by Ah Hua Kelong', lat: 1.313387, lng: 103.859730, images: [] },
-  { id: 3, name: 'At Feast', lat: 1.304231, lng: 103.814708, images: [] },
-  { id: 4, name: 'The Summerhouse', lat: 1.409229, lng: 103.868540, images: [] },
-  { id: 5, name: 'SaladStop!', lat: 1.281551, lng: 103.850597, images: [] },
-  { id: 6, name: 'Poison Ivy Bistro', lat: 1.437373, lng: 103.730705, images: [] },
-  { id: 7, name: 'Artichoke', lat: 1.290920, lng: 103.841799, images: [] },
+  { id: 1, name: "Open Farm Community", lat: 1.304896, lng: 103.812891, images: [] },
+  { id: 2, name: "Scaled by Ah Hua Kelong", lat: 1.313387, lng: 103.85973, images: [] },
+  { id: 3, name: "At Feast", lat: 1.304231, lng: 103.814708, images: [] },
+  { id: 4, name: "The Summerhouse", lat: 1.409229, lng: 103.86854, images: [] },
+  { id: 5, name: "SaladStop!", lat: 1.281551, lng: 103.850597, images: [] },
+  { id: 6, name: "Poison Ivy Bistro", lat: 1.437373, lng: 103.730705, images: [] },
+  { id: 7, name: "Artichoke", lat: 1.29092, lng: 103.841799, images: [] },
 ];
 
-// Utility function to calculate the distance between two points (Haversine formula)
+const posters: { [key: number]: string[] } = {};
+const matchedLocations: Location[] = [...locations];
+
+locations.forEach((location) => {
+  posters[location.id] = [];
+});
+
 const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
   const toRad = (value: number) => (value * Math.PI) / 180;
-  const R = 6371; // Earth's radius in kilometers
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-    Math.cos(toRad(lat2)) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in kilometers
+  return R * c;
 };
 
 export const Camera: React.FC = () => {
-  const { account } = useWallet();
-  const { setIsLoading, setResponse } = useSubmission();
+  const { setIsLoading } = useSubmission();
   const { onOpen } = useDisclosure();
-
-  // State to store matched location and images
-  const [matchedLocations, setMatchedLocations] = useState<Location[]>(locations);
+  const { account } = useWallet();
+  const toast = useToast();
+  const dropzoneBg = useColorModeValue("gray.50", "gray.700");
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles: File[]) => {
-      onFileUpload(acceptedFiles); // Pass the files to the callback
+      onFileUpload(acceptedFiles);
     },
-    maxFiles: 1, // Allow only one file
+    maxFiles: 1,
     accept: {
-      "image/*": [], // Accept only image files
+      "image/*": [],
     },
   });
 
   const onFileUpload = useCallback(
     async (files: File[]) => {
       if (files.length > 1 || files.length === 0) {
-        alert("Please upload only one file");
+        toast({
+          title: "Upload Error",
+          description: "Please upload only one file.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+          icon: <WarningIcon />, // Icon for error
+        });
         return;
       }
 
@@ -72,6 +80,7 @@ export const Camera: React.FC = () => {
         alert("Please connect your wallet");
         return;
       }
+        
 
       setIsLoading(true);
       onOpen();
@@ -80,13 +89,11 @@ export const Camera: React.FC = () => {
       const resizedBlob = await resizeImage(file);
       const base64Image = await blobToBase64(resizedBlob as Blob);
 
-      // Get the user's current location
       navigator.geolocation.getCurrentPosition((position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
-        // Check proximity to predefined locations (within 0.5 km)
-        const proximityThreshold = 5; // kilometers
+        const proximityThreshold = 5;
         let closestLocation: Location | null = null;
 
         for (const location of matchedLocations) {
@@ -98,66 +105,72 @@ export const Camera: React.FC = () => {
         }
 
         if (closestLocation) {
-          // Append the image to the location's images array
-          const updatedLocations = matchedLocations.map((loc) => {
-            if (loc.id === closestLocation?.id) {
-              return { ...loc, images: [...loc.images, base64Image] };
-            }
-            return loc;
+          posters[closestLocation.id].push(base64Image);
+          console.log(`Image appended to location ID ${closestLocation.id}`);
+          console.log("Updated posters:", posters);
+
+          toast({
+            title: "Image Verified",
+            description: `Your image has been successfully added to ${closestLocation.name}.`,
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top",
+            icon: <CheckCircleIcon />, // Icon for success
           });
-
-          setMatchedLocations(updatedLocations);
-          
-
-          console.log(`Image appended to ${closestLocation.name}`);
         } else {
-          alert("No nearby locations found.");
+          toast({
+            title: "No Nearby Locations",
+            description: "No nearby locations found within 5 km.",
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+            position: "top",
+            icon: <InfoIcon />, // Icon for information
+          });
         }
 
         setIsLoading(false);
       });
     },
-    [account, onOpen, setIsLoading, setResponse, matchedLocations]
+    [onOpen, setIsLoading, toast]
   );
 
   return (
-    <VStack w={"full"} mt={3}>
+    <VStack w="full" mt={3} spacing={6}>
       <Box
         {...getRootProps()}
         p={5}
-        border="2px"
-        borderColor={isDragActive ? "green.300" : "gray.300"}
+        borderWidth={2}
+        borderColor={isDragActive ? "green.400" : "gray.400"}
         borderStyle="dashed"
-        borderRadius="md"
-        bg={isDragActive ? "green.100" : "gray.50"}
+        borderRadius="lg"
+        bgGradient="linear(to-br, teal.300, green.200)"
         textAlign="center"
         cursor="pointer"
+        shadow="lg"
+        transition="all 0.2s"
         _hover={{
-          borderColor: "green.500",
-          bg: "green.50",
+          shadow: "xl",
+          bgGradient: "linear(to-br, teal.400, green.300)",
         }}
-        w={"full"}
-        h={"200px"}
+        w="full"
+        h="250px"
         display="flex"
+        flexDirection="column"
         alignItems="center"
         justifyContent="center"
       >
         <input {...getInputProps()} />
-        <HStack>
-          <ScanIcon size={120} color={"gray"} />
-          <Text>Upload to scan</Text>
-        </HStack>
+        <VStack>
+          <Icon as={MdOutlineCameraAlt} boxSize={16} color="white" />
+          <Text fontSize="lg" color="white" fontWeight="bold">
+            {isDragActive ? "Drop the image here..." : "Upload an image to scan"}
+          </Text>
+        </VStack>
       </Box>
-
-      {/* Display matched locations and images */}
-      {matchedLocations.map((location) => (
-        <Box key={location.id} mt={5}>
-          <Text fontWeight="bold">{location.name}</Text>
-          {location.images.map((img, index) => (
-            <img key={index} src={img} alt={`Uploaded at ${location.name}`} style={{ width: '100px', margin: '5px' }} />
-          ))}
-        </Box>
-      ))}
     </VStack>
   );
 };
+
+export { posters, matchedLocations };

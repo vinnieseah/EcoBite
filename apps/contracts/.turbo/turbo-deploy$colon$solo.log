@@ -7,21 +7,21 @@
 
 Deploying on vechain_solo with wallet 0xf077b491b355E64048cE21E3A6Fc4751eEeA77fa...
 Deploying mock RewardToken...
-RewardToken deployed to 0x6c9ec4b55fde479d31a4cf2361ed40e05374db02
+RewardToken deployed to 0xb75e570cad8f17c99dda61b20e3e5b4bd110fdc8
 Deploying X2EarnApps mock contract...
-X2EarnApps deployed to 0x1e6267541bbc9e4996c9733258e6e99d1da3ad3d
+X2EarnApps deployed to 0xb58d5ce0501b932b9089d4a14d837df0f79229a9
 Deploying X2EarnRewardsPool mock contract...
-X2EarnRewardsPool deployed to 0x797a3034b9a7e237851f969f6067fc803398efbd
+X2EarnRewardsPool deployed to 0x0e84ca070411affc548a927c4c70362000b24206
 Adding app in X2EarnApps...
 AppID: 0xed0d9621a5f9a5348638d5077da83e5101eac31f1e0c3faae5bff1bc45626b04
 Funding contract...
 Funded
 Deploying EcoEarn contract...
-EcoEarn deployed to: 0x22531c8943fad138baa9f322015ef276b877996d
+EcoEarn deployed to: 0xa27e34ae82bf29e03c5199d7be6f4b77162331bb
 To start using the contract, we need to set the rewards amount and switch to the next cycle
 Rewards set reward amount to 1000
 Switched to next cycle
 Add EcoEarn contracts as distributor...
 Added
 Done
-[1G[0K⠙[1G[0K[2K[1G✨  Done in 25.86s.
+[1G[0K⠙[1G[0K[2K[1G✨  Done in 21.28s.

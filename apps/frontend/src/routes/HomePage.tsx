@@ -1,7 +1,8 @@
 // routes/HomePage.tsx
 import React from 'react';
-import { Container, Flex } from '@chakra-ui/react';
-import {InfoCard} from '../components/InfoCard';  // Adjust path if needed
+import { Container, Flex, Box, Text } from '@chakra-ui/react';
+import { matchedLocations, posters } from '../components/Camera'; // Import global variables
+import { InfoCard } from '../components/InfoCard'; // Adjust path if needed
 
 const HomePage: React.FC = () => {
   return (
@@ -17,6 +18,29 @@ const HomePage: React.FC = () => {
         flexDirection={"column"}
       >
         <InfoCard />
+
+        {/* Display matched locations and images */}
+        <Box mt={10} w={"full"}>
+          {matchedLocations.map((location) => (
+            <Box key={location.id} mt={5} textAlign="center"> {/* Center the content */}
+              <Text fontWeight="bold" mb={4}>{location.name}</Text>
+              {/* Display images stored in the posters global variable */}
+              {posters[location.id].map((img, index) => (
+                <img 
+                  key={index} 
+                  src={img} 
+                  alt={`Uploaded at ${location.name}`} 
+                  style={{ 
+                    width: "80%", 
+                    margin: "10px auto", 
+                    display: "block", 
+                    borderRadius: "15px" // Added borderRadius for rounded corners
+                  }} 
+                />
+              ))}
+            </Box>
+          ))}
+        </Box>
       </Container>
     </Flex>
   );

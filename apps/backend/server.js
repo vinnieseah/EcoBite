@@ -1,79 +1,82 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+
 const app = express();
+const PORT = 5001; // Choose any port
 
 app.use(bodyParser.json({ limit: '50mb' })); // Handle large payloads
 
-// Predefined locations with latitude and longitude
-const locations = [
-  { id: 1, name: 'Open Farm Community', lat: 1.304896, lng: 103.812891 },
-  { id: 2, name: 'Scaled by Ah Hua Kelong', lat: 1.313387, lng: 103.859730 },
-  { id: 3, name: 'At Feast', lat: 1.304231, lng: 103.814708 },
-  { id: 4, name: 'The Summerhouse', lat: 1.409229, lng: 103.868540 },
-  { id: 5, name: 'SaladStop!', lat: 1.281551, lng: 103.850597 },
-  { id: 6, name: 'Poison Ivy Bistro', lat: 1.437373, lng: 103.730705 },
-  { id: 7, name: 'Artichoke', lat: 1.290920, lng: 103.841799 },
-];
-
-// Utility function to calculate the distance between two points (Haversine formula)
-function getDistance(lat1, lng1, lat2, lng2) {
-  const toRad = (value) => (value * Math.PI) / 180;
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-    Math.cos(toRad(lat2)) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c;
-  return distance; // Distance in kilometers
+// Ensure the images directory exists
+const imagesDir = path.join(__dirname, 'images');
+if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir);
 }
 
+// Utility function to get the next available file name in the format {index}{alphabet}.jpg
+const getNextFileName = (index) => {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    let i = 0;
+
+    // Check for the first available filename, starting with 'a'
+    while (i < alphabet.length) {
+        const fileName = `${index}${alphabet[i]}.jpg`;
+        const filePath = path.join(imagesDir, fileName);
+        if (!fs.existsSync(filePath)) {
+            return fileName; // Return the first available filename
+        }
+        i++;
+    }
+
+    throw new Error('Too many files for this index.'); // If all letters are exhausted
+};
+
+// POST /upload route to save the image
 app.post('/upload', (req, res) => {
-  const { image, latitude, longitude } = req.body;
+    const { image, locationId } = req.body;
 
-  // Check proximity to predefined locations (within 0.5 km)
-  const proximityThreshold = 0.5; // kilometers
-  let closestLocation = null;
-
-  for (const location of locations) {
-    const distance = getDistance(latitude, longitude, location.lat, location.lng);
-    if (distance <= proximityThreshold) {
-      closestLocation = location;
-      break;
-    }
-  }
-
-  if (closestLocation) {
-    // Save the image (append it to the location's images array)
-    const imageName = `${closestLocation.id}_${Date.now()}.jpg`;
-    const imagePath = path.join(__dirname, 'uploads', imageName);
-    
-    // Convert base64 string to binary and save the image
-    const imageData = image.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(imageData, 'base64');
-    
-    // Ensure the uploads directory exists
-    if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
-      fs.mkdirSync(path.join(__dirname, 'uploads'));
+    if (!image || !locationId) {
+        return res.status(400).json({ success: false, message: 'Missing image or locationId' });
     }
 
-    fs.writeFileSync(imagePath, buffer);
+    try {
+        // Get the next available file name
+        const fileName = getNextFileName(locationId);
+        const filePath = path.join(imagesDir, fileName);
 
-    res.json({ success: true, message: 'Image uploaded and location matched', location: closestLocation });
-  } else {
-    res.json({ success: false, message: 'No nearby locations found' });
-  }
+        // Remove base64 prefix from the image string
+        const imageData = image.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(imageData, 'base64');
 
-  console.log("Hello AGHHHH");
+        // Save the image
+        fs.writeFileSync(filePath, buffer);
+
+        res.json({ success: true, message: `Image saved as ${fileName}` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
-const PORT = 5001; // Change the port to 5000 or any port that is free
+// GET /images-list route to list the images
+app.get('/images-list', (req, res) => {
+    try {
+        // Read the images directory and get the list of files
+        const files = fs.readdirSync(imagesDir);
+
+        // Create full paths for the files
+        const filePaths = files.map(file => path.join('/images', file)); // Adjust the path as per your frontend serving logic
+
+        res.json({ success: true, images: filePaths });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Serve the images statically
+app.use('/images', express.static(imagesDir));
+
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
